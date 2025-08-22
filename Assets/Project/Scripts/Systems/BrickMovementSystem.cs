@@ -19,7 +19,8 @@ namespace Project.Scripts.Systems
             job.ScheduleParallel();
         }
     }
-
+    
+    [BurstCompile]
     public partial struct BrickMoverJob : IJobEntity
     {
         public float timeElapsed;
