@@ -13,7 +13,7 @@ namespace Project.Scripts.Systems
     public partial struct BrickMovementSystem : ISystem
     {
         [BurstCompile]
-        public void OnUpdate(ref SystemState s)
+        public void OnUpdate(ref SystemState state)
         {
             var timeElapsed = (float)SystemAPI.Time.ElapsedTime;
 
@@ -38,21 +38,109 @@ namespace Project.Scripts.Systems
 
                     case BrickAuthoring.BrickPath.M:
                     {
-                        var m = math.sin(speed * timeElapsed + phase);
-                        newXY = startPoint + new float2(
-                            amplitude * math.sign(m) * math.pow(math.abs(m), 0.5f),
-                            (amplitude * 0.4f) * (1f - math.abs(m)));
+                        const float tau = 6.28318530718f;
+                        var u = math.frac((speed * timeElapsed + phase) / tau);
+
+                        var seg = (int)math.floor(u * 8f);
+                        var s01 = math.frac(u * 8f);
+
+                        var ay = amplitude * 0.6f;
+
+                        ay = -ay;
+
+                        var p0 = new float2(-amplitude, +ay);
+                        var p1 = new float2(-amplitude * 0.5f, -ay);
+                        var p2 = new float2(0f, +ay);
+                        var p3 = new float2(+amplitude * 0.5f, -ay);
+                        var p4 = new float2(+amplitude, +ay);
+
+                        float2 a, b;
+                        switch (seg)
+                        {
+                            case 0:
+                                a = p0;
+                                b = p1;
+                                break;
+                            case 1:
+                                a = p1;
+                                b = p2;
+                                break;
+                            case 2:
+                                a = p2;
+                                b = p3;
+                                break;
+                            case 3:
+                                a = p3;
+                                b = p4;
+                                break;
+                            case 4:
+                                a = p4;
+                                b = p3;
+                                break;
+                            case 5:
+                                a = p3;
+                                b = p2;
+                                break;
+                            case 6:
+                                a = p2;
+                                b = p1;
+                                break;
+                            default:
+                                a = p1;
+                                b = p0;
+                                break;
+                        }
+
+                        newXY = startPoint + math.lerp(a, b, s01);
                     }
                         break;
 
                     case BrickAuthoring.BrickPath.Z:
                     {
-                        var saw = 2f * (timeElapsed * speed - math.floor(0.5f + timeElapsed * speed));
-                        newXY = startPoint + new float2(
-                            amplitude * saw,
-                            amplitude * 0.2f * math.sin(2f * speed * timeElapsed + phase));
-                    }
+                        const float tau = 6.28318530718f;
+                        var u = math.frac((speed * timeElapsed + phase) / tau);
+                        var seg = (int)math.floor(u * 6f);
+                        var s01 = math.frac(u * 6f);
+
+                        var ay = amplitude * 0.6f;
+
+                        var tl = new float2(-amplitude, +ay);
+                        var tr = new float2(+amplitude, +ay);
+                        var bl = new float2(-amplitude, -ay);
+                        var br = new float2(+amplitude, -ay);
+
+                        float2 a, b;
+                        switch (seg)
+                        {
+                            case 0:
+                                a = tl;
+                                b = tr;
+                                break;
+                            case 1:
+                                a = tr;
+                                b = bl;
+                                break;
+                            case 2:
+                                a = bl;
+                                b = br;
+                                break;
+                            case 3:
+                                a = br;
+                                b = bl;
+                                break;
+                            case 4:
+                                a = bl;
+                                b = tr;
+                                break;
+                            default:
+                                a = tr;
+                                b = tl;
+                                break;
+                        }
+
+                        newXY = startPoint + math.lerp(a, b, s01);
                         break;
+                    }
 
                     case BrickAuthoring.BrickPath.None:
                         newXY = new float2(lt.ValueRO.Position.x, lt.ValueRO.Position.y);
@@ -64,7 +152,7 @@ namespace Project.Scripts.Systems
 
                 var pos = lt.ValueRO.Position;
                 pos.x = newXY.x;
-                pos.y = newXY.y; 
+                pos.y = newXY.y;
                 lt.ValueRW.Position = pos;
             }
         }
