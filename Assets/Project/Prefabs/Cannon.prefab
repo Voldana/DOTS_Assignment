@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52159a5819b148789a951fd775292d79, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  barrelPosition: {fileID: 4099204573711574628}
   ballPrefab: {fileID: 3261647128142000104, guid: 6ba5eadb6d540374597e97ff9017a996,
     type: 3}
   shootSpeed: 20

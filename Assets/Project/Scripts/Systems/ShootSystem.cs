@@ -8,6 +8,7 @@ using Unity.Transforms;
 
 namespace Project.Scripts.Systems
 {
+    [UpdateInGroup(typeof(TransformSystemGroup))]
     public partial struct ShootSystem:ISystem
     {
         public void OnUpdate(ref SystemState state)
@@ -32,12 +33,12 @@ namespace Project.Scripts.Systems
                 if (!(length > 1e-4f)) continue;
                 var dir2 = distance / math.max(length, 1e-6f);
                 var angle = math.atan2(dir2.y, dir2.x);
-                transform.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1), angle + 90);
-
+                angle += math.radians(90);
+                transform.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1), angle);
 
                 if (!MouseInput.ShootDown || !(cannon.ValueRO.cooldown <= 0f)) continue;
                 cannon.ValueRW.cooldown = cannon.ValueRO.cooldown;
-
+                
                 var ball = entityCommandBuffer.Instantiate(cannon.ValueRO.ballPrefab);
                 entityCommandBuffer.SetComponent(ball, LocalTransform.FromPositionRotationScale(
                     cannonPos, quaternion.identity, 1f));
