@@ -49,7 +49,7 @@ MonoBehaviour:
   ballPrefab: {fileID: 3261647128142000104, guid: 6ba5eadb6d540374597e97ff9017a996,
     type: 3}
   shootSpeed: 20
-  cooldown: 5
+  cooldown: 0.5
 --- !u!1 &5355675397458201142
 GameObject:
   m_ObjectHideFlags: 0

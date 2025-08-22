@@ -32,7 +32,7 @@ namespace Project.Scripts.Systems
                 if (!(length > 1e-4f)) continue;
                 var dir2 = distance / math.max(length, 1e-6f);
                 var angle = math.atan2(dir2.y, dir2.x);
-                transform.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1), angle);
+                transform.ValueRW.Rotation = quaternion.AxisAngle(new float3(0, 0, 1), angle + 90);
 
 
                 if (!MouseInput.ShootDown || !(cannon.ValueRO.cooldown <= 0f)) continue;
