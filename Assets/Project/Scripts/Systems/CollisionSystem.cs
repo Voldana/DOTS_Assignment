@@ -54,7 +54,8 @@ namespace Project.Scripts.Systems
                 bumperLookup = bumperLookupRO,
                 brickHitLookup = brickHitLookupRW,
                 ecb = ecb.AsParallelWriter(),
-                scoreEntity = scoreEntity
+                scoreEntity = scoreEntity,
+                bumperBoost = 7.5f
             };
 
             state.Dependency = job.Schedule(sim, state.Dependency);
@@ -66,9 +67,11 @@ namespace Project.Scripts.Systems
     {
         public ComponentLookup<PhysicsVelocity> velLookup;
 
-        [ReadOnly] public ComponentLookup<Ball> ballLookup;
         [ReadOnly] public ComponentLookup<BrickAuthoring.Brick> brickLookup;
         [ReadOnly] public ComponentLookup<Bumper> bumperLookup;
+        [ReadOnly] public ComponentLookup<Ball> ballLookup;
+        [ReadOnly] public float bumperBoost;
+
 
         public ComponentLookup<BrickAuthoring.BrickHit> brickHitLookup;
 
@@ -87,30 +90,42 @@ namespace Project.Scripts.Systems
             var ball = aBall ? a : b;
             var other = aBall ? b : a;
 
-            if (velLookup.HasComponent(ball))
-            {
-                var n = ev.Normal;
-                var v = velLookup[ball];
-                if (math.dot(v.Linear, n) > 0f) n = -n;
+            if (!velLookup.HasComponent(ball)) return;
+            var n = ev.Normal;
+            var v = velLookup[ball];
+            var cur = v.Linear;
 
-                v.Linear = math.reflect(v.Linear, n) * 1.5f;
+            if (bumperLookup.HasComponent(other))
+            {
+                var outDir = math.normalizesafe(cur);
+                if (math.dot(cur, n) < -1e-3f)
+                    outDir = math.reflect(outDir, n);
+
+                var newSpeed = bumperBoost * 2;
+
+                v.Linear = outDir * newSpeed;
                 velLookup[ball] = v;
+                return;
             }
 
             if (!brickLookup.HasComponent(other)) return;
+            if (math.dot(cur, n) < -1e-3f)
+            {
+                var dir = math.normalizesafe(cur);
+                var reflDir = math.reflect(dir, n);
+
+                var speed = math.length(cur);
+                speed = math.clamp(speed, 7, 10);
+
+                v.Linear = reflDir * speed;
+                velLookup[ball] = v;
+            }
+
             if (brickHitLookup.HasComponent(other)) return;
             var brick = brickLookup[other];
-
-            ecb.AppendToBuffer(0, scoreEntity, new ScoreEvent
-            {
-                points = (int)math.round(brick.score)
-            });
-
-            ecb.AddComponent(0, other, new BrickAuthoring.BrickHit
-            {
-                timeLeft = brick.despawnDelayAfterHit,
-                scored = 1
-            });
+            ecb.AppendToBuffer(0, scoreEntity, new ScoreEvent { points = (int)math.round(brick.score) });
+            ecb.AddComponent(0, other,
+                new BrickAuthoring.BrickHit { timeLeft = brick.despawnDelayAfterHit, scored = 1 });
         }
     }
 }
