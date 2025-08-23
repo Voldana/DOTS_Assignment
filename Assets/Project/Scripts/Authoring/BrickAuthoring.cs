@@ -57,6 +57,12 @@ namespace Project.Scripts.Authoring
             public float speed;
             public float phase;
         }
+        
+        public struct BrickHit : IComponentData
+        {
+            public float timeLeft;
+            public byte  scored;
+        }
 
         public enum BrickKind : byte
         {

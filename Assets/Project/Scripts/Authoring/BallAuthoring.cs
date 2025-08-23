@@ -10,10 +10,10 @@ namespace Project.Scripts.Authoring
             public override void Bake(BallAuthoring authoring)
             {
                 var entity = GetEntity(TransformUsageFlags.Dynamic);
-                AddComponent<BallTag>(entity);
+                AddComponent<Ball>(entity);
             }
         }
     }
     
-    public struct BallTag : IComponentData {}
+    public struct Ball : IComponentData {}
 }
