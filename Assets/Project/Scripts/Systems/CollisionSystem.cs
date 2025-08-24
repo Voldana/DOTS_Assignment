@@ -115,7 +115,7 @@ namespace Project.Scripts.Systems
                 var reflDir = math.reflect(dir, n);
 
                 var speed = math.length(cur);
-                speed = math.clamp(speed, 7, 10);
+                // speed = math.clamp(speed, 7, 10);
 
                 v.Linear = reflDir * speed;
                 velLookup[ball] = v;
