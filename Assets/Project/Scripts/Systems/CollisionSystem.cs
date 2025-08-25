@@ -5,12 +5,10 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
-using Unity.Physics.Systems;
 
 namespace Project.Scripts.Systems
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-    [UpdateAfter(typeof(PhysicsSimulationGroup))]
     public partial struct BallCollisionSystem : ISystem
     {
         private ComponentLookup<BrickAuthoring.BrickHit> brickHitLookupRW;
@@ -115,7 +113,6 @@ namespace Project.Scripts.Systems
                 var reflDir = math.reflect(dir, n);
 
                 var speed = math.length(cur);
-                // speed = math.clamp(speed, 7, 10);
 
                 v.Linear = reflDir * speed;
                 velLookup[ball] = v;

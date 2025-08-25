@@ -2,13 +2,11 @@
 using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Physics.Systems;
 using Unity.Transforms;
 
 namespace Project.Scripts.Systems
 {
     [UpdateInGroup(typeof(FixedStepSimulationSystemGroup))]
-    [UpdateBefore(typeof(PhysicsSimulationGroup))]
     public partial struct BumperMovementSystem : ISystem
     {
         [BurstCompile]
