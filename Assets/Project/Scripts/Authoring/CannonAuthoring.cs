@@ -7,7 +7,6 @@ namespace Project.Scripts.Authoring
     {
         [SerializeField] private GameObject ballPrefab;
         [SerializeField] private float shootSpeed;
-        [SerializeField] private float cooldown;
 
         class Baker : Baker<CannonAuthoring>
         {
@@ -18,8 +17,7 @@ namespace Project.Scripts.Authoring
                 AddComponent(entity, new Cannon
                 {
                     ballPrefab = GetEntity(authoring.ballPrefab, TransformUsageFlags.Dynamic),
-                    shootSpeed = authoring.shootSpeed,
-                    cooldown = authoring.cooldown
+                    shootSpeed = authoring.shootSpeed
                 });
             }
         }
@@ -29,6 +27,5 @@ namespace Project.Scripts.Authoring
     {
         public Entity ballPrefab;
         public float shootSpeed;
-        public float cooldown;
     }
 }

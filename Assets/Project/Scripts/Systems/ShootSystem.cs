@@ -13,21 +13,18 @@ namespace Project.Scripts.Systems
     {
         public void OnUpdate(ref SystemState state)
         {
-            var deltaTime = SystemAPI.Time.DeltaTime;
             var ecb = new EntityCommandBuffer(Allocator.Temp);
 
             foreach (var (cannon, transform) in
                      SystemAPI.Query<RefRW<Cannon>, RefRW<LocalTransform>>())
             {
-                var onCooldown = IsOnCooldown(ref cannon.ValueRW, deltaTime);
                 if (!Aim(ref transform.ValueRW, transform.ValueRO.Position, out var dir2))
                     continue;
 
-                if (!MouseInput.ShootDown || onCooldown)
+                if (!MouseInput.ShootDown)
                     continue;
 
                 Shoot(ecb, in cannon.ValueRO, in transform.ValueRO, in dir2);
-                cannon.ValueRW.cooldown = cannon.ValueRO.cooldown;
             }
 
             ecb.Playback(state.EntityManager);
@@ -51,11 +48,6 @@ namespace Project.Scripts.Systems
             var angle = math.atan2(dir2.y, dir2.x) + math.radians(90f);
             cannonXform.Rotation = quaternion.AxisAngle(new float3(0, 0, 1), angle);
             return true;
-        }
-        private bool IsOnCooldown(ref Cannon cannon, float deltaTime)
-        {
-            cannon.cooldown = math.max(0f, cannon.cooldown - deltaTime);
-            return !(cannon.cooldown <= 0f);
         }
 
         private void Shoot(EntityCommandBuffer ecb, in Cannon cannon, in LocalTransform cannonXformRO, in float2 dir2)
